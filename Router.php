@@ -23,9 +23,16 @@ class Router
         $fn = null;
 
         if ($method === 'GET') {
-            $fn = $this->getRoutes[$path];
+            if (isset($this->getRoutes[$path])) {
+                $fn = $this->getRoutes[$path];
+            }
         } else {
-            $fn = $this->postRoutes[$path];
+            if (isset($this->postRoutes[$path])) {
+                $fn = $this->postRoutes[$path];
+            }
+        }
+        if (!isset($fn)) {
+            echo 'Route not found int the api';
         }
         call_user_func($fn);
     }
