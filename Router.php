@@ -14,4 +14,17 @@ class Router
         $this->getRoutes[$url] = $fn;
 
     }
+    public function call()
+    {
+        $method = $_SERVER['REAQUEST_METHOD'];
+        $path = $_SERVER['PATH_INFO'] ?? '/';
+        $fn = null;
+
+        if ($method === 'GET') {
+            $fn = $this->getRoutes[$path];
+        } else {
+            $fn = $this->postRoutes[$path];
+        }
+        call_user_func($fn);
+    }
 }
