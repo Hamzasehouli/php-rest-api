@@ -1,13 +1,13 @@
 <?php
-
-require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
-
-use app\Router;
-
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: *");
 header('Access-Control-Allow-Credentials: true');
 header('content-type:application/json');
+
+require_once $_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php';
+
+use app\controllers\UserController;
+use app\Router;
 
 $router = new Router();
 $router->get('/api/v1/auth', [UserController::class, 'getAllUsers']);
