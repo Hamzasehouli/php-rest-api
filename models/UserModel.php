@@ -32,7 +32,7 @@ class UserModel
     {
         $database = new Database();
         $con = $database->connect();
-        $query = 'SELECT * FROM user WHERE email=:email';
+        $query = 'SELECT * FROM user WHERE username=:username';
         $stmt = $con->prepare($query);
         return $stmt;
     }
