@@ -1,5 +1,7 @@
 <?php
 
+namespace app;
+
 class Router
 {
     private $getRoutes;
