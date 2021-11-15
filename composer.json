@@ -1,0 +1,15 @@
+{
+  "name": "solicode/php-rest-api",
+  "autoload": {
+    "psr-4": {
+      "app\\": "./"
+    }
+  },
+  "authors": [
+    {
+      "name": "hamzasehouli",
+      "email": "sehoulihamza@yahoo.com"
+    }
+  ],
+  "require": {}
+}
