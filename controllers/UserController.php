@@ -39,8 +39,10 @@ class UserController
 
             $gt = new GenerateJwt();
             $jwt = $gt->generateToken($id);
-            print_r(json_encode(['status' => 'success', 'message' => 'You signed up successfully', 'token' => $jwt]));
+            header("HTTP/1.1 200");
+            print_r(json_encode(['status' => 'success', 'message' => 'You signed up successfully', 'token' => $jwt, 'email' => $email]));
         } else {
+            header("HTTP/1.1 400");
             print_r(json_encode(['status' => 'success', 'message' => 'Something went wrong']));
         }
 
@@ -52,6 +54,7 @@ class UserController
         $stmt = $User->findOne();
         $data = json_decode(file_get_contents('php://input', true));
         if (empty($data->username) || empty($data->password)) {
+            header("HTTP/1.1 403");
             return print_r(json_encode(['status' => 'fail', 'message' => 'Please enter all required input to continue']));
         }
         $stmt->bindValue(':username', $data->username);
@@ -59,6 +62,7 @@ class UserController
         $user = $stmt->fetch();
         $row = $stmt->rowCount();
         if ($row < 1) {
+            header("HTTP/1.1 404");
             return print_r(json_encode(['status' => 'fail', 'message' => 'No user found or the enetered password is incorrect']));
         }
         extract($user);
@@ -67,11 +71,13 @@ class UserController
         // }
         $isPasswordCorrect = password_verify($data->password, $password);
         if (!$isPasswordCorrect) {
+            header("HTTP/1.1 403");
             return print_r(json_encode(['status' => 'fail', 'message' => 'No user found or the enetered password is incorrect']));
         }
         $gt = new GenerateJwt();
         $jwt = $gt->generateToken($id);
-        print_r(json_encode(['status' => 'success', 'message' => 'You logged in successfully', 'token' => $jwt]));
+        header("HTTP/1.1 200");
+        print_r(json_encode(['status' => 'success', 'message' => 'You logged in successfully', 'token' => $jwt, 'email' => $email]));
         // $hashedPassword = password_hash($data->password, PASSWORD_DEFAULT);
         // password_verify();
         // $stmt->bindValue(':username', $data->username);
@@ -83,9 +89,10 @@ class UserController
 
     public static function protect()
     {
+        $User = new UserModel();
         $d = json_decode(file_get_contents('php://input'), true);
         if (isset($d['jwt'])) {
-            print_r($d);
+
             $resp = explode('=', $d['jwt']);
             $jwt = $resp[1];
         } else {
@@ -100,10 +107,17 @@ class UserController
 
         // check the expiration time - note this will cause an error if there is no 'exp' claim in the jwt
         $expiration = json_decode($payload)->exp;
+        $id = json_decode($payload)->user_id;
+
         $is_token_expired = ($expiration - time()) < 0;
 
+        if ($expiration - time() < 0) {
+            header("HTTP/1.1 400");
+            return print_r(json_encode(['status' => 'fail', 'message' => 'your are logged out', 'isLoggedin' => false]));
+        }
+
         // build a signature based on the header and payload using the secret
-        // Encode Header to Base64Url String
+        // Encode Header to Base64Url String {
         $base64UrlHeader = str_replace(['+', '/', '='], ['-', '_', ''], base64_encode($header));
 
         // Encode Payload to Base64Url String
@@ -122,14 +136,25 @@ class UserController
         // } else {
         //     $isTokenValid = true;
         // }
-        print_r($is_signature_valid);
+        // print_r($is_signature_valid);
+        $stmt1 = $User->findById();
+        $stmt1->bindValue(':id', $id);
+        $stmt1->execute();
+        $row = $stmt1->rowCount();
+        if ($row < 0) {
+            header("HTTP/1.1 404");
+            return print_r(json_encode(['status' => 'fail', 'message' => 'User not found', 'isLoggedin' => false]));
+        }
+        $user1 = $stmt1->fetch(\PDO::FETCH_ASSOC);
+        extract($user1);
 
         if ($is_signature_valid) {
             header("HTTP/1.1 200");
-            return print_r(json_encode(['status' => 'success', 'message' => 'You logged in successfully', 'isLoggedin' => true]));
+            print_r(json_encode(['status' => 'success', 'message' => 'You logged in successfully', 'isLoggedin' => true, 'email' => $email]));
+
         } else {
             header("HTTP/1.1 403");
-            return print_r(json_encode(['status' => 'fail', 'message' => 'your ere not logged in to perform the task', 'isLoggedin' => false]));
+            print_r(json_encode(['status' => 'fail', 'message' => 'your ere not logged in to perform the task', 'isLoggedin' => false]));
 
         }
     }
