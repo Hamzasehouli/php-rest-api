@@ -40,7 +40,7 @@ class UserController
             $gt = new GenerateJwt();
             $jwt = $gt->generateToken($id);
             header("HTTP/1.1 200");
-            print_r(json_encode(['status' => 'success', 'message' => 'You signed up successfully', 'token' => $jwt, 'email' => $email]));
+            print_r(json_encode(['status' => 'success', 'message' => 'You signed up successfullynnnnnnnnnnnnnnnnnnnn', 'token' => $jwt, 'email' => $email]));
         } else {
             header("HTTP/1.1 400");
             print_r(json_encode(['status' => 'success', 'message' => 'Something went wrong']));
@@ -150,7 +150,7 @@ class UserController
 
         if ($is_signature_valid) {
             header("HTTP/1.1 200");
-            print_r(json_encode(['status' => 'success', 'message' => 'You logged in successfully', 'isLoggedin' => true, 'email' => $email]));
+            print_r(json_encode(['status' => 'success', 'message' => 'You logged in successfully', 'token' => $jwt, 'isLoggedin' => true, 'email' => $email]));
 
         } else {
             header("HTTP/1.1 403");
